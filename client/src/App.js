@@ -38,6 +38,7 @@ function App() {
   }
 
   const showFiles = (e) => {
+    console.log(e.target.files[0])
     setFileToUpload(e.target.files[0])
     setDisplayImg(URL.createObjectURL(e.target.files[0]))
   }
@@ -62,14 +63,20 @@ function App() {
   }
 
   const setImgSrc = (data) => {
-    console.log(data)
+    fetch(data)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], Date.now + '-screenshot',{ type: "image/png" })
+        setFileToUpload(file)
+      })
+    setDisplayImg(data)
   }
 
   const uploadMenu = () => (
     <div className="upload-menu">
       <Button>
         <input id="fileupload" name="myfile" type="file" onChange={showFiles} style={{display: 'none'}}/>
-        <label htmlFor="fileupload" id="fileuploadlabel" className="custom-file-input">Upload From Your
+        <label htmlFor="fileupload" id="fileuploadlabel" className="custom-file-input">Upload Photo From Your
           Device</label>
       </Button>
       <div>
@@ -96,7 +103,7 @@ function App() {
           {displayImg && (
             <>
               <div style={{height: 'calc(100% - 32px)'}}>
-                <img src={displayImg} alt={fileToUpload.name}/>
+                <img src={displayImg} alt={fileToUpload?.name || 'screen shot'}/>
               </div>
               <Button onClick={uploadFile}>Upload</Button>
             </>
