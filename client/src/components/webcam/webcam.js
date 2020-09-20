@@ -19,6 +19,7 @@ const WebcamComponent = ({setImgSrc}) => {
         wrapClassName="webcam-modal"
         visible={modalVisibility}
         footer={null}
+        centered
         siz
         onCancel={() => setModalVisibility(false)}
       >

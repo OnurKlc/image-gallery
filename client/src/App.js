@@ -5,42 +5,44 @@ import iconSet from "./icon/selection.json";
 import IcomoonReact from "icomoon-react";
 import WebcamComponent from "./components/webcam/webcam";
 import './App.scss'
+import ImageModal from "./components/imageModal/imageModal";
 
 const antIcon = <LoadingOutlined style={{fontSize: 24}} spin/>;
 
 function App() {
   const [response, setResponse] = useState()
-  const [fileToUpload, setFileToUpload] = useState()
-  const [displayImg, setDisplayImg] = useState()
+  const [filesToUpload, setFilesToUpload] = useState()
   const [dropdownVisible, setDropdownVisible] = useState(false)
-  const [loader, setLoader] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [emptyData, setEmptyData] = useState(false)
+  const [isImageModalVisible, setIsImageModalVisible] = useState(false)
+  const [selectedImg, setSelectedImg] = useState()
 
   function uploadFile() {
-    setLoader(true)
+    setIsLoading(true)
     const formData = new FormData();
-    formData.append('package', fileToUpload, Date.now() + '!time!' + fileToUpload.name);
+    filesToUpload.map(file => formData.append('package', file, Date.now() + '!time!' + file.name))
     fetch("http://localhost:9000/img", {
       method: 'POST',
       body: formData
     })
       .then(response => response.text())
       .then(() => {
-        setLoader(false)
-        setDisplayImg()
+        setIsLoading(false)
+        setFilesToUpload()
         getImages();
       })
       .catch((error) => {
         console.error('Error:', error)
         message.error('An error occured')
-        setLoader(false)
+        setIsLoading(false)
       });
   }
 
   const showFiles = (e) => {
-    console.log(e.target.files[0])
-    setFileToUpload(e.target.files[0])
-    setDisplayImg(URL.createObjectURL(e.target.files[0]))
+    let files =  e.currentTarget.files;
+    files = Array.from(files)
+    setFilesToUpload(files)
   }
 
   const getImages = () => {
@@ -54,11 +56,11 @@ function App() {
           setEmptyData(false)
           setResponse(res)
         }
-        setLoader(false)
+        setIsLoading(false)
       })
       .catch(() => {
         message.error('An error occured')
-        setLoader(false)
+        setIsLoading(false)
       })
   }
 
@@ -67,15 +69,14 @@ function App() {
       .then(res => res.blob())
       .then(blob => {
         const file = new File([blob], Date.now + '-screenshot',{ type: "image/png" })
-        setFileToUpload(file)
+        setFilesToUpload([file])
       })
-    setDisplayImg(data)
   }
 
   const uploadMenu = () => (
     <div className="upload-menu">
       <Button>
-        <input id="fileupload" name="myfile" type="file" onChange={showFiles} style={{display: 'none'}}/>
+        <input id="fileupload" name="myfile" multiple type="file" onChange={showFiles} style={{display: 'none'}}/>
         <label htmlFor="fileupload" id="fileuploadlabel" className="custom-file-input">Upload Photo From Your
           Device</label>
       </Button>
@@ -85,25 +86,32 @@ function App() {
     </div>
   )
 
+  const onImgClick = (data) => {
+    setIsImageModalVisible(true);
+    setSelectedImg(data)
+  }
+
   useEffect(() => getImages(), [])
 
   return (
     <div className="App">
       <div className="upload-container">
-        <Dropdown overlay={uploadMenu}>
+        <Dropdown overlay={uploadMenu} trigger={['click']}>
           <button className="camera-button" onClick={() => setDropdownVisible(!dropdownVisible)}>
             <IcomoonReact className="camera-icon" iconSet={iconSet} color="#000" size={50}
                           icon="camera"/>
           </button>
         </Dropdown>
       </div>
-      {!loader &&
+      {!isLoading &&
       <>
         <div className="upload-img-container">
-          {displayImg && (
+          {filesToUpload && (
             <>
-              <div style={{height: 'calc(100% - 32px)'}}>
-                <img src={displayImg} alt={fileToUpload?.name || 'screen shot'}/>
+              <div className="upload-img-list">
+                {filesToUpload.map(file => (
+                  <img src={URL.createObjectURL(file)} alt={file.name || 'screen shot'}/>
+                ))}
               </div>
               <Button onClick={uploadFile}>Upload</Button>
             </>
@@ -112,15 +120,16 @@ function App() {
         {!emptyData && (
           <div className="gallery-container">
             {response && response.map(item => (
-              <img key={item} className="gallery-item" src={'http://localhost:9000/images/' + item} alt={item}/>
+              <img key={item} className="gallery-item" onClick={() => onImgClick(item)} src={'http://localhost:9000/images/' + item} alt={item}/>
             ))}
           </div>)}
       </>}
-      {loader && <Spin indicator={antIcon}/>}
-      {!loader && emptyData && (
+      {isLoading && <Spin indicator={antIcon}/>}
+      {!isLoading && emptyData && (
         <div className="empty-container">
           <Empty/>
         </div>)}
+      {isImageModalVisible && <ImageModal url={selectedImg} onClose={() => setIsImageModalVisible(false)} />}
     </div>
   )
 }

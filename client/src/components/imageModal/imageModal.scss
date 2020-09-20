@@ -1,0 +1,43 @@
+.image-modal {
+  .ant-modal {
+    position: absolute;
+    top: 30px;
+    bottom: 30px;
+    left: 30px;
+    right: 30px;
+    width: unset !important;
+
+    @media (max-width: 767px) {
+      top: 15px;
+      bottom: 15px;
+      left: 15px;
+      right: 15px;
+    }
+  }
+
+  .ant-modal-content {
+    height: 100%;
+    width: 100%;
+  }
+
+  .ant-modal-body {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .ant-modal-close-x {
+    line-height: 30px;
+    height: 26px;
+    width: 26px;
+  }
+  img {
+    @media only screen and (orientation: landscape) {
+      height: 100%;
+    }
+    @media only screen and (orientation: portrait) {
+      width: 100%;
+    }
+    object-fit: contain;
+  }
+}
