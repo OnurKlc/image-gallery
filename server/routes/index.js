@@ -7,13 +7,16 @@ var imagePath = path.join(path.resolve(__dirname, '..'), '/public/images/')
 
 function getDirectoryContent (req, res, next) {
   fs.readdir(imagePath, function (err, images) {
-    if (err) { return next(err) }
+    if (err) {
+      return next(err)
+    }
     res.locals.filenames = images
     next()
   })
 }
 
 router.get('/', getDirectoryContent, function (req, res) {
+  console.log(res.locals)
   res.send(res.locals)
 })
 
@@ -27,7 +30,13 @@ router.post('/', async (req, res) => {
     } else {
       const img = req.files.package
 
-      img.mv('./public/images/' + img.name)
+      if (Array.isArray(img)) {
+        for (const item of img) {
+          item.mv('./public/images/' + item.name)
+        }
+      } else {
+        img.mv('./public/images/' + img.name)
+      }
 
       res.send({
         status: true,

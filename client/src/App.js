@@ -56,11 +56,11 @@ function App() {
       .then(res => res.text())
       .then(res => JSON.parse(res))
       .then(res => {
-        if (res.length === 0) {
+        if (res.filenames.length === 0) {
           setEmptyData(true)
         } else {
           setEmptyData(false)
-          setResponse(res)
+          setResponse(res.filenames)
         }
         setIsLoading(false)
       })
@@ -80,7 +80,7 @@ function App() {
     fetch(data)
       .then(res => res.blob())
       .then(blob => {
-        const file = new File([blob], Date.now + '-screenshot', {type: "image/png"})
+        const file = new File([blob], Date.now() + '-screenshot', {type: "image/png"})
         setFilesToUpload([file])
       })
   }
@@ -130,7 +130,7 @@ function App() {
             <>
               <div className="upload-img-list">
                 {filesToUpload.map(file => (
-                  <img src={URL.createObjectURL(file)} alt={file.name || 'screen shot'}/>
+                  <img key={file.name} src={URL.createObjectURL(file)} alt={file.name || 'screen shot'}/>
                 ))}
               </div>
               <Button onClick={uploadImage}>Upload</Button>
