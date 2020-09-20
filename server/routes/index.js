@@ -1,8 +1,20 @@
 var express = require('express')
 var router = express.Router()
 
-router.get('/', function (req, res) {
-  res.send('API is working properly')
+var fs = require('fs')
+var path = require('path')
+var imagePath = path.join(path.resolve(__dirname, '..'), '/public/images/')
+
+function getDirectoryContent (req, res, next) {
+  fs.readdir(imagePath, function (err, images) {
+    if (err) { return next(err) }
+    res.locals.filenames = images
+    next()
+  })
+}
+
+router.get('/', getDirectoryContent, function (req, res) {
+  res.send(res.locals)
 })
 
 router.post('/', async (req, res) => {
@@ -15,7 +27,7 @@ router.post('/', async (req, res) => {
     } else {
       const img = req.files.package
 
-      img.mv('./uploads/' + img.name)
+      img.mv('./public/images/' + img.name)
 
       res.send({
         status: true,

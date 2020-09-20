@@ -13,6 +13,7 @@ const app = express()
 app.use(fileUpload({
   createParentPath: true
 }))
+app.use(express.static('public'))
 app.use(cors())
 app.use(logger('dev'))
 app.use(express.json())

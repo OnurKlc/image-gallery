@@ -1,24 +1,39 @@
 import React, {useEffect, useState} from 'react'
-import './App.css'
+import {Button, Dropdown, Spin, message, Empty} from "antd";
+import {LoadingOutlined} from '@ant-design/icons';
+import iconSet from "./icon/selection.json";
+import IcomoonReact from "icomoon-react";
+import WebcamComponent from "./components/webcam/webcam";
+import './App.scss'
 
-function App () {
-  const [ response, setResponse ] = useState()
-  const [ fileToUpload, setFileToUpload ] = useState()
-  const [ displayImg, setDisplayImg ] = useState()
+const antIcon = <LoadingOutlined style={{fontSize: 24}} spin/>;
+
+function App() {
+  const [response, setResponse] = useState()
+  const [fileToUpload, setFileToUpload] = useState()
+  const [displayImg, setDisplayImg] = useState()
+  const [dropdownVisible, setDropdownVisible] = useState(false)
+  const [loader, setLoader] = useState(true)
+  const [emptyData, setEmptyData] = useState(false)
 
   function uploadFile() {
-    var formData = new FormData();
-    formData.append('package', fileToUpload, fileToUpload.name);
+    setLoader(true)
+    const formData = new FormData();
+    formData.append('package', fileToUpload, Date.now() + '!time!' + fileToUpload.name);
     fetch("http://localhost:9000/img", {
       method: 'POST',
       body: formData
     })
       .then(response => response.text())
-      .then(res => {
-        console.log(res)
+      .then(() => {
+        setLoader(false)
+        setDisplayImg()
+        getImages();
       })
       .catch((error) => {
-        console.error('Error:', error);
+        console.error('Error:', error)
+        message.error('An error occured')
+        setLoader(false)
       });
   }
 
@@ -27,25 +42,78 @@ function App () {
     setDisplayImg(URL.createObjectURL(e.target.files[0]))
   }
 
-  const callAPI = () => {
+  const getImages = () => {
     fetch("http://localhost:9000/img")
       .then(res => res.text())
-      .then(res => setResponse(res));
+      .then(res => JSON.parse(res))
+      .then(res => {
+        if (res.length === 0) {
+          setEmptyData(true)
+        } else {
+          setEmptyData(false)
+          setResponse(res)
+        }
+        setLoader(false)
+      })
+      .catch(() => {
+        message.error('An error occured')
+        setLoader(false)
+      })
   }
 
-  useEffect(() => callAPI())
+  const setImgSrc = (data) => {
+    console.log(data)
+  }
+
+  const uploadMenu = () => (
+    <div className="upload-menu">
+      <Button>
+        <input id="fileupload" name="myfile" type="file" onChange={showFiles} style={{display: 'none'}}/>
+        <label htmlFor="fileupload" id="fileuploadlabel" className="custom-file-input">Upload From Your
+          Device</label>
+      </Button>
+      <div>
+        <WebcamComponent setImgSrc={setImgSrc}/>
+      </div>
+    </div>
+  )
+
+  useEffect(() => getImages(), [])
 
   return (
     <div className="App">
-      <p className="App-intro">{response}</p>
-      <div style={{textAlign: 'center', marginTop: '100px'}}>
-        <input id="fileupload" name="myfile" type="file" onChange={showFiles} />
-        <label htmlFor="fileupload" id="fileuploadlabel" className="custom-file-input" />
+      <div className="upload-container">
+        <Dropdown overlay={uploadMenu}>
+          <button className="camera-button" onClick={() => setDropdownVisible(!dropdownVisible)}>
+            <IcomoonReact className="camera-icon" iconSet={iconSet} color="#000" size={50}
+                          icon="camera"/>
+          </button>
+        </Dropdown>
       </div>
-      {displayImg &&
-      <div><img width="200" height="200" src={displayImg} alt={fileToUpload.name}/>
-      <button onClick={uploadFile}>Upload</button>
-      </div>}
+      {!loader &&
+      <>
+        <div className="upload-img-container">
+          {displayImg && (
+            <>
+              <div style={{height: 'calc(100% - 32px)'}}>
+                <img src={displayImg} alt={fileToUpload.name}/>
+              </div>
+              <Button onClick={uploadFile}>Upload</Button>
+            </>
+          )}
+        </div>
+        {!emptyData && (
+          <div className="gallery-container">
+            {response && response.map(item => (
+              <img key={item} className="gallery-item" src={'http://localhost:9000/images/' + item} alt={item}/>
+            ))}
+          </div>)}
+      </>}
+      {loader && <Spin indicator={antIcon}/>}
+      {!loader && emptyData && (
+        <div className="empty-container">
+          <Empty/>
+        </div>)}
     </div>
   )
 }
