@@ -10,6 +10,7 @@ function getDirectoryContent (req, res, next) {
     if (err) {
       return next(err)
     }
+    images.shift()
     res.locals.filenames = images
     next()
   })
