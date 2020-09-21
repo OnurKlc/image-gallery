@@ -1,18 +1,18 @@
-import React, {useEffect, useState} from 'react'
-import {Button, Dropdown, Spin, message, Empty} from "antd";
-import {LoadingOutlined} from '@ant-design/icons';
-import iconSet from "./icon/selection.json";
-import IcomoonReact from "icomoon-react";
+import React, { useEffect, useState } from 'react'
+import { Button, Dropdown, Spin, message, Empty } from 'antd'
+import { LoadingOutlined } from '@ant-design/icons'
+import iconSet from './static/icon/selection.json'
+import IcomoonReact from 'icomoon-react'
 
-import Dropzone from "./components/dropzone/dropzone"
-import WebcamComponent from "./components/webcam/webcam"
-import ImageModal from "./components/imageModal/imageModal"
-import * as Constants from "./constants/constants"
+import Dropzone from './components/dropzone/dropzone'
+import WebcamComponent from './components/webcam/webcam'
+import ImageModal from './components/imageModal/imageModal'
+import * as Constants from './static/constants/constants'
 import './App.scss'
 
-const antIcon = <LoadingOutlined style={{fontSize: 24}} spin/>;
+const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin/>
 
-function App() {
+function App () {
   const [isMobile, setIsMobile] = useState()
   const [response, setResponse] = useState()
   const [filesToUpload, setFilesToUpload] = useState()
@@ -24,19 +24,19 @@ function App() {
   const [modalType, setModalType] = useState()
 
   const updateIsMobile = () => {
-    const width = window.innerWidth;
+    const width = window.innerWidth
     if (width < 768) {
       setIsMobile(true)
     } else {
       setIsMobile(false)
     }
-  };
+  }
 
   const uploadImage = () => {
     setIsLoading(true)
-    const formData = new FormData();
+    const formData = new FormData()
     filesToUpload.map(file => formData.append('package', file, Date.now() + '!time!' + file.name))
-    fetch("http://localhost:9000/img", {
+    fetch('http://localhost:9000/img', {
       method: 'POST',
       body: formData
     })
@@ -44,17 +44,17 @@ function App() {
       .then(() => {
         setIsLoading(false)
         setFilesToUpload()
-        getImages();
+        getImages()
       })
       .catch((error) => {
         console.error('Error:', error)
         message.error('An error occured')
         setIsLoading(false)
-      });
+      })
   }
 
   const getImages = () => {
-    fetch("http://localhost:9000/img")
+    fetch('http://localhost:9000/img')
       .then(res => res.text())
       .then(res => JSON.parse(res))
       .then(res => {
@@ -73,7 +73,7 @@ function App() {
   }
 
   const showFiles = (e) => {
-    let files = e.currentTarget.files;
+    let files = e.currentTarget.files
     files = Array.from(files)
     setFilesToUpload(files)
   }
@@ -82,7 +82,7 @@ function App() {
     fetch(data)
       .then(res => res.blob())
       .then(blob => {
-        const file = new File([blob], Date.now() + '-screenshot.png', {type: "image/png"})
+        const file = new File([blob], Date.now() + '-screenshot.png', { type: 'image/png' })
         setFilesToUpload([file])
       })
   }
@@ -90,7 +90,7 @@ function App() {
   const uploadMenu = () => (
     <div className="upload-menu">
       <Button>
-        <input id="fileupload" name="myfile" multiple type="file" onChange={showFiles} style={{display: 'none'}}/>
+        <input id="fileupload" name="myfile" multiple type="file" onChange={showFiles} style={{ display: 'none' }}/>
         <label htmlFor="fileupload" id="fileuploadlabel" className="custom-file-input">Upload Photo From Your
           Device</label>
       </Button>
@@ -124,7 +124,7 @@ function App() {
           <Dropdown overlay={uploadMenu} trigger={['click']}>
             <button className="camera-button" onClick={() => setDropdownVisible(!dropdownVisible)}>
               <IcomoonReact className="camera-icon" iconSet={iconSet} color="#000" size={50}
-                            icon="camera"/>
+                icon="camera"/>
             </button>
           </Dropdown>
         </div>
@@ -152,7 +152,7 @@ function App() {
           <div className="gallery-container">
             {response && response.map(item => (
               <img key={item} className="gallery-item" onClick={() => onImgClick(item, Constants.IMAGE_MODAL_VIEW_TYPE)}
-                   src={'http://localhost:9000/images/' + item} alt={item}/>
+                src={'http://localhost:9000/images/' + item} alt={item}/>
             ))}
           </div>)}
       </>}

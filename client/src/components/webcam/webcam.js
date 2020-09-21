@@ -1,17 +1,17 @@
-import React, {useRef, useState} from "react";
-import Webcam from "react-webcam";
-import {Modal, Button} from "antd";
-import "./webcam.scss"
+import React, { useRef, useState } from 'react'
+import Webcam from 'react-webcam'
+import { Modal, Button } from 'antd'
+import './webcam.scss'
 
-const WebcamComponent = ({setImgSrc}) => {
+const WebcamComponent = ({ setImgSrc }) => {
   const [modalVisibility, setModalVisibility] = useState(false)
   const webcamRef = useRef()
 
   const capture = React.useCallback(() => {
     setModalVisibility(false)
-    const imageSrc = webcamRef.current.getScreenshot();
-    setImgSrc(imageSrc);
-  }, [webcamRef, setImgSrc]);
+    const imageSrc = webcamRef.current.getScreenshot()
+    setImgSrc(imageSrc)
+  }, [webcamRef, setImgSrc])
 
   return (
     <>
@@ -32,7 +32,7 @@ const WebcamComponent = ({setImgSrc}) => {
       </Modal>
       <Button className="take-photo-button" onClick={() => setModalVisibility(true)}>Take a Photo</Button>
     </>
-  );
-};
+  )
+}
 
-export default WebcamComponent;
+export default WebcamComponent

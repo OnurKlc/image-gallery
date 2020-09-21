@@ -1,23 +1,22 @@
-import React, {useCallback, useState} from 'react'
-import {Modal, Slider, Button} from 'antd'
+import React, { useCallback, useState } from 'react'
+import { Modal, Slider, Button } from 'antd'
 import Cropper from 'react-easy-crop'
-import IcomoonReact from "icomoon-react";
+import IcomoonReact from 'icomoon-react'
 
 import './imageModal.scss'
 import getCroppedImg from './cropImage'
-import iconSet from "../../icon/selection.json";
-import * as Constants from "../../constants/constants"
+import iconSet from '../../static/icon/selection.json'
+import * as Constants from '../../static/constants/constants'
 
-
-function ImageModal({onClose, src, type, uploadEditedImage}) {
-  const [crop, setCrop] = useState({x: 0, y: 0})
+function ImageModal ({ onClose, src, type, uploadEditedImage }) {
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [rotation, setRotation] = useState(0)
   const [edit, setEdit] = useState(false)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
   const [croppedImage, setCroppedImage] = useState(null)
 
-  const img = type === Constants.IMAGE_MODAL_VIEW_TYPE ? 'http://localhost:9000/images/' + src : src;
+  const img = type === Constants.IMAGE_MODAL_VIEW_TYPE ? 'http://localhost:9000/images/' + src : src
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels)
@@ -30,7 +29,7 @@ function ImageModal({onClose, src, type, uploadEditedImage}) {
         croppedAreaPixels,
         rotation
       )
-      console.log('donee', {croppedImage})
+      console.log('donee', { croppedImage })
       setCroppedImage(croppedImage)
       setEdit(false)
     } catch (e) {
@@ -57,7 +56,7 @@ function ImageModal({onClose, src, type, uploadEditedImage}) {
       <div className="rotate-slider">
         <div>Rotate</div>
         <Slider
-          min={1}
+          min={0}
           max={360}
           step={1}
           onChange={(val) => setRotation(val)}
@@ -86,8 +85,12 @@ function ImageModal({onClose, src, type, uploadEditedImage}) {
           onCropComplete={onCropComplete}
           onZoomChange={setZoom}
         />
-        <Button onClick={showCroppedImage} style={{marginRight: '10px'}}>Save Edit</Button>
-        <Button onClick={() => setEdit(false)}>Quit Edit</Button>
+        <Button onClick={showCroppedImage} style={{ marginRight: '10px' }}>Save Edit</Button>
+        <Button onClick={() => {
+          setZoom(1)
+          setRotation(0)
+          setEdit(false)
+        }}>Quit Edit</Button>
       </>
       }
       <span onClick={() => setEdit(!edit)}>
@@ -100,7 +103,7 @@ function ImageModal({onClose, src, type, uploadEditedImage}) {
       </span>
       {!edit && !croppedImage && <img src={img} alt=""/>}
       {croppedImage && (
-        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Button onClick={onUploadClick}>Upload</Button>
           <img src={croppedImage} alt=""/>
         </div>
