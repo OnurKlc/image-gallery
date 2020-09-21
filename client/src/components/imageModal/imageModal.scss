@@ -1,18 +1,28 @@
 .image-modal {
   .ant-modal {
     position: absolute;
-    top: 30px;
-    bottom: 30px;
-    left: 30px;
-    right: 30px;
+    top: 30px !important;
+    bottom: 30px !important;
+    left: 30px !important;
+    right: 30px !important;
     width: unset !important;
 
     @media (max-width: 767px) {
-      top: 15px;
-      bottom: 15px;
-      left: 15px;
-      right: 15px;
+      top: 15px !important;
+      bottom: 15px !important;
+      left: 15px !important;
+      right: 15px !important;
     }
+  }
+
+  .crop-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
   }
 
   .ant-modal-content {
@@ -24,6 +34,7 @@
     height: 100%;
     display: flex;
     justify-content: center;
+    position: relative;
   }
 
   .ant-modal-close-x {
@@ -39,5 +50,17 @@
       width: 100%;
     }
     object-fit: contain;
+  }
+
+  .zoom-slider, .rotate-slider {
+    width: 320px;
+    position: absolute;
+    text-align: left;
+  }
+  .zoom-slider {
+    bottom: 0;
+  }
+  .rotate-slider {
+    bottom: 50px;
   }
 }

@@ -4,9 +4,10 @@ import {LoadingOutlined} from '@ant-design/icons';
 import iconSet from "./icon/selection.json";
 import IcomoonReact from "icomoon-react";
 
-import Dropzone from "./components/dropzone/dropzone";
-import WebcamComponent from "./components/webcam/webcam";
-import ImageModal from "./components/imageModal/imageModal";
+import Dropzone from "./components/dropzone/dropzone"
+import WebcamComponent from "./components/webcam/webcam"
+import ImageModal from "./components/imageModal/imageModal"
+import * as Constants from "./constants/constants"
 import './App.scss'
 
 const antIcon = <LoadingOutlined style={{fontSize: 24}} spin/>;
@@ -20,6 +21,7 @@ function App() {
   const [emptyData, setEmptyData] = useState(false)
   const [isImageModalVisible, setIsImageModalVisible] = useState(false)
   const [selectedImg, setSelectedImg] = useState()
+  const [modalType, setModalType] = useState()
 
   const updateIsMobile = () => {
     const width = window.innerWidth;
@@ -80,7 +82,7 @@ function App() {
     fetch(data)
       .then(res => res.blob())
       .then(blob => {
-        const file = new File([blob], Date.now() + '-screenshot', {type: "image/png"})
+        const file = new File([blob], Date.now() + '-screenshot.png', {type: "image/png"})
         setFilesToUpload([file])
       })
   }
@@ -98,9 +100,14 @@ function App() {
     </div>
   )
 
-  const onImgClick = (data) => {
-    setIsImageModalVisible(true);
-    setSelectedImg(data)
+  const onImgClick = (data, type) => {
+    if (type === Constants.IMAGE_MODAL_UPLOAD_TYPE) {
+      setSelectedImg(URL.createObjectURL(data))
+    } else {
+      setSelectedImg(data)
+    }
+    setIsImageModalVisible(true)
+    setModalType(type)
   }
 
   useEffect(() => {
@@ -130,7 +137,11 @@ function App() {
             <>
               <div className="upload-img-list">
                 {filesToUpload.map(file => (
-                  <img key={file.name} src={URL.createObjectURL(file)} alt={file.name || 'screen shot'}/>
+                  <img
+                    key={file.name}
+                    onClick={() => onImgClick(file, Constants.IMAGE_MODAL_UPLOAD_TYPE)}
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}/>
                 ))}
               </div>
               <Button onClick={uploadImage}>Upload</Button>
@@ -140,7 +151,7 @@ function App() {
         {!emptyData && (
           <div className="gallery-container">
             {response && response.map(item => (
-              <img key={item} className="gallery-item" onClick={() => onImgClick(item)}
+              <img key={item} className="gallery-item" onClick={() => onImgClick(item, Constants.IMAGE_MODAL_VIEW_TYPE)}
                    src={'http://localhost:9000/images/' + item} alt={item}/>
             ))}
           </div>)}
@@ -150,7 +161,13 @@ function App() {
         <div className="empty-container">
           <Empty/>
         </div>)}
-      {isImageModalVisible && <ImageModal url={selectedImg} onClose={() => setIsImageModalVisible(false)}/>}
+      {isImageModalVisible && (
+        <ImageModal
+          src={selectedImg}
+          onClose={() => setIsImageModalVisible(false)}
+          uploadEditedImage={setImgSrc}
+          type={modalType}/>
+      )}
     </div>
   )
 }
